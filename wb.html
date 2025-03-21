@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日语动画职位批量翻译为中文</title>
+    <title>日语动画职位批量翻译为中文 (带人物搜索)</title>
     <style>
         body {
             font-family: sans-serif;
@@ -15,7 +15,7 @@
         textarea {
             width: 80%;
             max-width: 600px;
-            min-height: 200px; /* 增加 textarea 高度 */
+            min-height: 200px;
             margin-bottom: 10px;
             padding: 10px;
             border: 1px solid #ccc;
@@ -39,12 +39,29 @@
             padding: 10px;
             border: 1px solid #ccc;
             box-sizing: border-box;
-            white-space: pre-wrap; /* 保留换行 */
+            white-space: pre-wrap;
+        }
+        .search-button {
+            padding: 5px 10px;
+            background-color: #007bff; /* 蓝色按钮 */
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 0.9em; /* 稍微小一点的字体 */
+        }
+        .search-button:hover {
+            background-color: #0056b3;
+        }
+        .translation-line {
+            display: flex; /* 使用 Flexbox 布局 */
+            align-items: baseline; /* 按钮和文本基线对齐 */
+            margin-bottom: 5px; /* 行间距 */
         }
     </style>
 </head>
 <body>
-    <h1>日语动画职位批量翻译为中文</h1>
+    <h1>日语动画职位批量翻译为中文 (带人物搜索)</h1>
     <textarea id="japaneseJobText" placeholder="在此粘贴日语职位列表"></textarea>
     <button id="translateButton">翻译为中文</button>
     <div id="translationResult">翻译结果将显示在此处</div>
@@ -63,7 +80,7 @@
             "原画": "原画",
             "動画": "动画",
             "キャラクターデザイン": "角色设计",
-            "サブキャラクターデザイン": "次要角色设计", // 新增
+            "サブキャラクターデザイン": "次要角色设计",
             "メカニックデザイン": "机械设计",
             "美術監督": "美术监督/背景美术指导",
             "色彩設計": "色彩设计",
@@ -91,27 +108,41 @@
                 return;
             }
 
-            const lines = japaneseText.split('\n'); // 将文本按行分割
-            let translatedLines = [];
+            const lines = japaneseText.split('\n');
+            let translatedHTML = []; // 改为存储 HTML 字符串
 
             for (const line of lines) {
-                const parts = line.split('：'); // 使用 "：" 分割职位和人名
+                const parts = line.split('：');
                 if (parts.length === 2) {
                     const jobTitle = parts[0].trim();
                     const personName = parts[1].trim();
                     const translatedTitle = animationJobTitleDictionary[jobTitle];
 
                     if (translatedTitle) {
-                        translatedLines.push(`${translatedTitle}：${personName}`); // 拼接翻译后的职位和人名
+                        const translatedLineText = `${translatedTitle}：${personName}`;
+                        const searchButtonHTML = `<button class="search-button" data-name="${personName}">Google 搜索</button>`;
+                        translatedHTML.push(`<div class="translation-line">${translatedLineText}${searchButtonHTML}</div>`); // 使用 div 包裹，包含文本和按钮
                     } else {
-                        translatedLines.push(line); // 如果职位未找到，则保留原行
+                        translatedHTML.push(`<div class="translation-line">${line}</div>`); // 未翻译的行也用 div 包裹
                     }
                 } else {
-                    translatedLines.push(line); // 如果行格式不符合 "职位：人名"，则保留原行
+                    translatedHTML.push(`<div class="translation-line">${line}</div>`); // 格式不正确的行也用 div 包裹
                 }
             }
 
-            translationResultDiv.textContent = translatedLines.join('\n'); // 将翻译后的行用换行符连接并显示
+            translationResultDiv.innerHTML = translatedHTML.join(''); // 使用 innerHTML 设置 HTML 内容
+
+            // 事件委托处理 Google 搜索按钮点击
+            translationResultDiv.addEventListener('click', function(event) {
+                if (event.target.classList.contains('search-button')) {
+                    const personName = event.target.dataset.name;
+                    if (personName) {
+                        const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(personName)}`;
+                        window.open(googleSearchUrl, '_blank'); // 在新标签页打开
+                    }
+                }
+            });
+
         });
     </script>
 </body>
