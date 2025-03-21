@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日语职位翻译工具</title>
+    <style>
+        body {
+            font-family: 'Noto Sans SC', 'Noto Sans JP', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result-container {
+            margin-top: 20px;
+        }
+        
+        /* 表格布局优化 */
+        .output-table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .output-table tr {
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .output-table tr:last-child {
+            border-bottom: none;
+        }
+        
+        .output-table td {
+            padding: 12px 5px;
+            vertical-align: middle;
+        }
+        
+        /* 职位样式 */
+        .position-jp {
+            width: 25%;
+            text-align: right;
+            font-weight: bold;
+            color: #7f8c8d;
+            border-right: 1px solid #e0e0e0;
+            padding-right: 15px;
+        }
+        
+        .position-cn {
+            width: 25%;
+            padding-left: 15px;
+        }
+        
+        .position-cn input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        
+        /* 人名样式优化 */
+        .person-name-container {
+            width: 50%;
+            padding-left: 15px;
+        }
+        
+        .person-name-list {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .person-name-item {
+            display: flex;
+            align-items: center;
+            background-color: #f0f7ff;
+            border-radius: 4px;
+            padding: 4px 8px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .person-name-text {
+            margin-right: 6px;
+        }
+        
+        .not-found {
+            background-color: #ffecb3;
+        }
+        
+        .dictionary-container {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .dictionary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .dictionary-table th, .dictionary-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .dictionary-table th {
+            background-color: #f2f2f2;
+        }
+        
+        .dictionary-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .status {
+            margin-top: 10px;
+            color: #27ae60;
+            font-style: italic;
+            height: 20px;
+        }
+        
+        /* 标签页样式 */
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .tab button {
+            background-color: inherit;
+            color: #333;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 10px 16px;
+            transition: 0.3s;
+            border-radius: 0;
+            margin: 0;
+        }
+        
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        
+        .tab button.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            background-color: white;
+        }
+        
+        .tabcontent.active {
+            display: block;
+        }
+        /* 人名样式 */
+        .person-name {
+            color: #2c3e50;
+            margin-left: 8px;
+            font-size: 15px;
+        }
+        
+        .person-name-item {
+            display: inline-block;
+            background-color: #f0f7ff;
+            border-radius: 4px;
+            padding: 2px 8px;
+            margin: 2px 4px 2px 0;
+            border-left: 3px solid #3498db;
+        }
+        
+        /* 搜索按钮样式优化 */
+        .search-btn-small {
+            padding: 2px 5px;
+            font-size: 10px;
+            margin-left: 3px;
+            border-radius: 3px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .google {
+            background-color: #4285F4;
+        }
+        
+        .google:hover {
+            background-color: #2b71d9;
+        }
+        
+        .bgm {
+            background-color: #F4A460;
+        }
+        
+        .bgm:hover {
+            background-color: #e08b46;
+        }
+        
+        /* 分割线样式 */
+        .row-divider {
+            border-bottom: 1px solid #e0e0e0;
+            margin: 5px 0;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>日语职位翻译工具</h1>
+    
+    <div class="container">
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'translate-tab')">翻译</button>
+            <button class="tablinks" onclick="openTab(event, 'dictionary-tab')">词典管理</button>
+        </div>
+        
+        <div id="translate-tab" class="tabcontent active">
+            <h2>输入日文职位列表</h2>
+            <textarea id="input-text" placeholder="请输入日文职位列表，例如：&#10;総監督：冨安大貴&#10;監督：でんさおり&#10;..."></textarea>
+            <button id="translate-btn">翻译</button>
+            <button id="copy-btn">复制结果</button>
+            
+            <div class="result-container">
+                <h2>翻译结果</h2>
+                <table class="output-table" id="output-table">
+                    <!-- 结果将在这里动态显示 -->
+                </table>
+                <div class="status" id="status"></div>
+            </div>
+        </div>
+        
+        <div id="dictionary-tab" class="tabcontent">
+            <h2>词典管理</h2>
+            <textarea id="dictionary-text" placeholder="请按行输入词典内容，格式为：日文,中文&#10;例如：&#10;総監督,总导演&#10;監督,导演&#10;..."></textarea>
+            <button id="save-dictionary-btn">保存词典</button>
+            <button id="export-dictionary-btn">导出词典</button>
+            <button id="import-dictionary-btn">导入词典</button>
+            <input type="file" id="import-file" accept=".csv" style="display: none;">
+            
+            <div class="dictionary-container">
+                <h3>当前词典</h3>
+                <table class="dictionary-table" id="dictionary-table">
+                    <thead>
+                        <tr>
+                            <th>日文</th>
+                            <th>中文</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 词典内容将在这里动态显示 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化词典
+        let dictionary = {
+            "総監督": "总导演",
+            "監督": "导演",
+            "シリーズ構成": "系列构成",
+            "キャラクターデザイン": "角色设计",
+            "サブキャラクターデザイン": "次要角色设计",
+            "音響監督": "音响监督",
+            "音楽": "音乐",
+            "アニメーション制作": "动画制作"
+        };
+
+        // 页面加载时从本地存储加载词典
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedDictionary = localStorage.getItem('translation-dictionary');
+            if (savedDictionary) {
+                dictionary = JSON.parse(savedDictionary);
+            }
+            updateDictionaryTable();
+        });
+
+
+            // 翻译按钮点击事件
+            document.getElementById('translate-btn').addEventListener('click', () => {
+                const inputText = document.getElementById('input-text').value;
+                const outputTable = document.getElementById('output-table');
+                outputTable.innerHTML = '';
+                
+                if (!inputText.trim()) {
+                    return;
+                }
+
+                const lines = inputText.split('\n');
+                let notFoundCount = 0;
+                
+                lines.forEach((line, index) => {
+                    if (!line.trim()) return;
+                    
+                    let parts = [];
+                    let position = '';
+                    let content = '';
+                    
+                    // 检测常见分隔符
+                    if (line.includes('：')) {
+                        parts = line.split('：');
+                        position = parts[0];
+                        content = parts.slice(1).join('：');
+                    } else if (line.includes(':')) {
+                        parts = line.split(':');
+                        position = parts[0];
+                        content = parts.slice(1).join(':');
+                    } else {
+                        position = line;
+                        content = '';
+                    }
+                    
+                    // 清理可能的空格
+                    position = position.trim();
+                    content = content.trim();
+                    
+                    // 在词典中查找翻译
+                    let translatedPosition = dictionary[position] || '';
+                    const isFound = !!dictionary[position];
+                    
+                    if (!isFound) {
+                        notFoundCount++;
+                    }
+                    
+                    // 创建结果行
+                    const row = document.createElement('tr');
+                    
+                    // 日文职位列
+                    const jpCell = document.createElement('td');
+                    jpCell.className = 'position-jp';
+                    jpCell.textContent = position + '：';
+                    row.appendChild(jpCell);
+                    
+                    // 中文职位列（可编辑）
+                    const cnCell = document.createElement('td');
+                    cnCell.className = 'position-cn';
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = translatedPosition;
+                    input.className = isFound ? '' : 'not-found';
+                    input.dataset.jp = position;
+                    input.dataset.content = content; // 保存人名内容
+                    
+                    // 为输入框添加更改事件，动态更新词典
+                    input.addEventListener('change', (e) => {
+                        const jp = e.target.dataset.jp;
+                        const cn = e.target.value;
+                        if (cn) {
+                            dictionary[jp] = cn;
+                            e.target.classList.remove('not-found');
+                        } else {
+                            delete dictionary[jp];
+                            e.target.classList.add('not-found');
+                        }
+                        saveDictionary();
+                    });
+                    
+                    cnCell.appendChild(input);
+                    row.appendChild(cnCell);
+                    
+                    // 人名和搜索按钮统一放在末尾
+                    const nameCell = document.createElement('td');
+                    nameCell.className = 'person-name-container';
+                    nameCell.colSpan = 2;
+                    
+                    if (content) {
+                        const nameListDiv = document.createElement('div');
+                        nameListDiv.className = 'person-name-list';
+                        
+                        // 定义可能的分隔符
+                        const separators = ['・', '、', '/', '／', '，', ','];
+                        // 检查是否含有分隔符
+                        let hasSeparator = false;
+                        let usedSeparator = '';
+                        for (const sep of separators) {
+                            if (content.includes(sep)) {
+                                hasSeparator = true;
+                                usedSeparator = sep;
+                                break;
+                            }
+                        }
+                        
+                        const names = hasSeparator 
+                            ? content.split(usedSeparator).map(name => name.trim()).filter(name => name)
+                            : [content];
+                        
+                        names.forEach(name => {
+                            const nameItem = document.createElement('div');
+                            nameItem.className = 'person-name-item';
+                            
+                            const nameText = document.createElement('span');
+                            nameText.className = 'person-name-text';
+                            nameText.textContent = name;
+                            nameItem.appendChild(nameText);
+                            
+                            // 添加Google搜索按钮
+                            const googleBtn = document.createElement('button');
+                            googleBtn.textContent = 'G';
+                            googleBtn.className = 'search-btn-small google';
+                            googleBtn.title = '在Google搜索';
+                            googleBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                window.open(`https://www.google.com/search?q=${encodeURIComponent(name)}`, '_blank');
+                            });
+                            
+                            // 添加BGM.tv搜索按钮
+                            const bgmBtn = document.createElement('button');
+                            bgmBtn.textContent = 'B';
+                            bgmBtn.className = 'search-btn-small bgm';
+                            bgmBtn.title = '在BGM.tv搜索';
+                            bgmBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                window.open(`https://bgm.tv/mono_search/${encodeURIComponent(name)}?cat=prsn`, '_blank');
+                            });
+                            
+                            nameItem.appendChild(googleBtn);
+                            nameItem.appendChild(bgmBtn);
+                            nameListDiv.appendChild(nameItem);
+                        });
+                        
+                        nameCell.appendChild(nameListDiv);
+                    }
+                    
+                    row.appendChild(nameCell);
+                    outputTable.appendChild(row);
+                    
+                    // 添加分割线，除了最后一行
+                    if (index < lines.length - 1) {
+                        const dividerRow = document.createElement('tr');
+                        dividerRow.className = 'row-divider';
+                        const dividerCell = document.createElement('td');
+                        dividerCell.colSpan = 4;
+                        dividerRow.appendChild(dividerCell);
+                        outputTable.appendChild(dividerRow);
+                    }
+                });
+                
+                // 更新状态信息
+                const status = document.getElementById('status');
+                if (notFoundCount > 0) {
+                    status.textContent = `注意：有${notFoundCount}个职位未在词典中找到（已高亮显示）`;
+                    status.style.color = '#e67e22';
+                } else {
+                    status.textContent = '全部职位已成功翻译！';
+                    status.style.color = '#27ae60';
+                }
+            });
+        // 复制结果按钮点击事件
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            const rows = document.querySelectorAll('#output-table tr:not(.row-divider)');
+            let result = '';
+            
+            rows.forEach(row => {
+                const jpCell = row.querySelector('.position-jp');
+                const cnInput = row.querySelector('.position-cn input');
+                const nameContainer = row.querySelector('.person-name-container');
+                
+                if (jpCell && cnInput) {
+                    const jpText = jpCell.textContent.replace('：', '').trim();
+                    const cnText = cnInput.value.trim();
+                    const names = Array.from(nameContainer.querySelectorAll('.person-name-text'))
+                        .map(span => span.textContent.trim())
+                        .join('、');
+                    
+                    if (cnText === '【STAFF】' || cnText === '【CAST】') {
+                        // 特殊处理【STAFF】和【CAST】
+                        result += `${cnText}\n`;
+                    } else if (cnText) {
+                        // 正常情况：有中文翻译
+                        result += `${cnText}：${names}\n`;
+                    } else {
+                        // 没有翻译，使用原始日文职位名
+                        result += `${jpText}：${names}\n`;
+                    }
+                }
+            });
+            
+            // 复制到剪贴板
+            navigator.clipboard.writeText(result.trim()).then(() => {
+                const status = document.getElementById('status');
+                status.textContent = '结果已复制到剪贴板！';
+                status.style.color = '#27ae60';
+                
+                setTimeout(() => {
+                    status.textContent = '';
+                }, 2000);
+            });
+        });
+        // 保存词典按钮点击事件
+        document.getElementById('save-dictionary-btn').addEventListener('click', () => {
+            const dictionaryText = document.getElementById('dictionary-text').value;
+            const lines = dictionaryText.split('\n');
+            
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                
+                const parts = line.split(',');
+                if (parts.length >= 2) {
+                    const jp = parts[0].trim();
+                    const cn = parts[1].trim();
+                    if (jp && cn) {
+                        dictionary[jp] = cn;
+                    }
+                }
+            }
+            
+            saveDictionary();
+            updateDictionaryTable();
+            
+            document.getElementById('dictionary-text').value = '';
+        });
+
+        // 导出词典按钮点击事件
+        document.getElementById('export-dictionary-btn').addEventListener('click', () => {
+            let csvContent = '';
+            
+            for (const [jp, cn] of Object.entries(dictionary)) {
+                csvContent += `${jp},${cn}\n`;
+            }
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', '翻译词典.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // 导入词典按钮点击事件
+        document.getElementById('import-dictionary-btn').addEventListener('click', () => {
+            document.getElementById('import-file').click();
+        });
+
+        // 处理文件导入
+        document.getElementById('import-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const content = event.target.result;
+                const lines = content.split('\n');
+                
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+                    
+                    const parts = line.split(',');
+                    if (parts.length >= 2) {
+                        const jp = parts[0].trim();
+                        const cn = parts[1].trim();
+                        if (jp && cn) {
+                            dictionary[jp] = cn;
+                        }
+                    }
+                }
+                
+                saveDictionary();
+                updateDictionaryTable();
+                e.target.value = '';
+            };
+            
+            reader.readAsText(file);
+        });
+
+        // 保存词典到本地存储
+        function saveDictionary() {
+            localStorage.setItem('translation-dictionary', JSON.stringify(dictionary));
+        }
+
+        // 更新词典表格
+        function updateDictionaryTable() {
+            const tableBody = document.querySelector('#dictionary-table tbody');
+            tableBody.innerHTML = '';
+            
+            for (const [jp, cn] of Object.entries(dictionary)) {
+                const row = document.createElement('tr');
+                
+                const jpCell = document.createElement('td');
+                jpCell.textContent = jp;
+                row.appendChild(jpCell);
+                
+                const cnCell = document.createElement('td');
+                cnCell.textContent = cn;
+                row.appendChild(cnCell);
+                
+                const actionsCell = document.createElement('td');
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '删除';
+                deleteBtn.className = 'search-btn';
+                deleteBtn.style.backgroundColor = '#e74c3c';
+                deleteBtn.addEventListener('click', () => {
+                    delete dictionary[jp];
+                    saveDictionary();
+                    updateDictionaryTable();
+                });
+                
+                actionsCell.appendChild(deleteBtn);
+                row.appendChild(actionsCell);
+                
+                tableBody.appendChild(row);
+            }
+        }
+
+        // 标签页切换功能
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tabcontent");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            
+            const tablinks = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>
