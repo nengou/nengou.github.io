@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日语动画职位翻译为中文</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        input[type="text"] {
+            width: 80%;
+            max-width: 600px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #translationResult {
+            width: 80%;
+            max-width: 600px;
+            min-height: 50px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>日语动画职位翻译为中文</h1>
+    <input type="text" id="japaneseJobTitle" placeholder="输入日语动画职位名称">
+    <button id="translateButton">翻译为中文</button>
+    <div id="translationResult">翻译结果将显示在此处</div>
+
+    <script>
+        const japaneseJobTitleInput = document.getElementById('japaneseJobTitle');
+        const translateButton = document.getElementById('translateButton');
+        const translationResultDiv = document.getElementById('translationResult');
+
+        // 动画职位翻译字典
+        const animationJobTitleDictionary = {
+            "監督": "导演",
+            "演出": "演出/分镜演出", // 动画的演出，可能指分镜或单集导演
+            "作画監督": "作画监督/动画导演",
+            "原画": "原画",
+            "動画": "动画",
+            "キャラクターデザイン": "角色设计",
+            "メカニックデザイン": "机械设计",
+            "美術監督": "美术监督/背景美术指导",
+            "色彩設計": "色彩设计",
+            "撮影監督": "摄影监督/摄影指导",
+            "音響監督": "音响监督/声音导演",
+            "音楽": "音乐",
+            "プロデューサー": "制片人",
+            "アニメーションプロデューサー": "动画制片人",
+            "制作進行": "制作进行/制片助理",
+            "設定制作": "设定制作", // 负责设定资料整理等
+            "脚本": "剧本",
+            "絵コンテ": "绘分镜/故事板",
+            "3DCGアニメーター": "3DCG动画师",
+            "モデラー": "建模师",
+            "リギングアーティスト": "绑定艺术家",
+            "アニメーション制作": "动画制作", // 公司或部门名称
+            "制作デスク": "制作デスク/制片部门", // 部门或职位
+            // ... 可以继续添加更多动画职位 ...
+        };
+
+        translateButton.addEventListener('click', () => {
+            const japaneseTitle = japaneseJobTitleInput.value.trim();
+
+            if (!japaneseTitle) {
+                alert("请输入日语动画职位名称！");
+                return;
+            }
+
+            const translatedTitle = animationJobTitleDictionary[japaneseTitle];
+
+            if (translatedTitle) {
+                translationResultDiv.textContent = translatedTitle;
+            } else {
+                translationResultDiv.textContent = `未找到 "${japaneseTitle}" 的精确动画职位翻译，可能需要手动翻译或添加到字典。`;
+            }
+        });
+    </script>
+</body>
+</html>
