@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日语动画职位翻译为中文</title>
+    <title>日语动画职位批量翻译为中文</title>
     <style>
         body {
             font-family: sans-serif;
@@ -12,11 +12,12 @@
             align-items: center;
             padding: 20px;
         }
-        input[type="text"] {
+        textarea {
             width: 80%;
             max-width: 600px;
-            padding: 10px;
+            min-height: 200px; /* 增加 textarea 高度 */
             margin-bottom: 10px;
+            padding: 10px;
             border: 1px solid #ccc;
             box-sizing: border-box;
         }
@@ -34,33 +35,35 @@
         #translationResult {
             width: 80%;
             max-width: 600px;
-            min-height: 50px;
+            min-height: 100px;
             padding: 10px;
             border: 1px solid #ccc;
             box-sizing: border-box;
-            white-space: pre-wrap;
+            white-space: pre-wrap; /* 保留换行 */
         }
     </style>
 </head>
 <body>
-    <h1>日语动画职位翻译为中文</h1>
-    <input type="text" id="japaneseJobTitle" placeholder="输入日语动画职位名称">
+    <h1>日语动画职位批量翻译为中文</h1>
+    <textarea id="japaneseJobText" placeholder="在此粘贴日语职位列表"></textarea>
     <button id="translateButton">翻译为中文</button>
     <div id="translationResult">翻译结果将显示在此处</div>
 
     <script>
-        const japaneseJobTitleInput = document.getElementById('japaneseJobTitle');
+        const japaneseJobTextarea = document.getElementById('japaneseJobText');
         const translateButton = document.getElementById('translateButton');
         const translationResultDiv = document.getElementById('translationResult');
 
-        // 动画职位翻译字典
+        // 动画职位翻译字典 (与之前相同，可以扩展)
         const animationJobTitleDictionary = {
+            "総監督": "总导演",
             "監督": "导演",
-            "演出": "演出/分镜演出", // 动画的演出，可能指分镜或单集导演
+            "演出": "演出/分镜演出",
             "作画監督": "作画监督/动画导演",
             "原画": "原画",
             "動画": "动画",
             "キャラクターデザイン": "角色设计",
+            "サブキャラクターデザイン": "次要角色设计", // 新增
             "メカニックデザイン": "机械设计",
             "美術監督": "美术监督/背景美术指导",
             "色彩設計": "色彩设计",
@@ -70,32 +73,45 @@
             "プロデューサー": "制片人",
             "アニメーションプロデューサー": "动画制片人",
             "制作進行": "制作进行/制片助理",
-            "設定制作": "设定制作", // 负责设定资料整理等
+            "設定制作": "设定制作",
             "脚本": "剧本",
             "絵コンテ": "绘分镜/故事板",
             "3DCGアニメーター": "3DCG动画师",
             "モデラー": "建模师",
             "リギングアーティスト": "绑定艺术家",
-            "アニメーション制作": "动画制作", // 公司或部门名称
-            "制作デスク": "制作デスク/制片部门", // 部门或职位
-            // ... 可以继续添加更多动画职位 ...
+            "アニメーション制作": "动画制作",
+            "制作デスク": "制作デスク/制片部门",
         };
 
         translateButton.addEventListener('click', () => {
-            const japaneseTitle = japaneseJobTitleInput.value.trim();
+            const japaneseText = japaneseJobTextarea.value.trim();
 
-            if (!japaneseTitle) {
-                alert("请输入日语动画职位名称！");
+            if (!japaneseText) {
+                alert("请粘贴日语职位列表！");
                 return;
             }
 
-            const translatedTitle = animationJobTitleDictionary[japaneseTitle];
+            const lines = japaneseText.split('\n'); // 将文本按行分割
+            let translatedLines = [];
 
-            if (translatedTitle) {
-                translationResultDiv.textContent = translatedTitle;
-            } else {
-                translationResultDiv.textContent = `未找到 "${japaneseTitle}" 的精确动画职位翻译，可能需要手动翻译或添加到字典。`;
+            for (const line of lines) {
+                const parts = line.split('：'); // 使用 "：" 分割职位和人名
+                if (parts.length === 2) {
+                    const jobTitle = parts[0].trim();
+                    const personName = parts[1].trim();
+                    const translatedTitle = animationJobTitleDictionary[jobTitle];
+
+                    if (translatedTitle) {
+                        translatedLines.push(`${translatedTitle}：${personName}`); // 拼接翻译后的职位和人名
+                    } else {
+                        translatedLines.push(line); // 如果职位未找到，则保留原行
+                    }
+                } else {
+                    translatedLines.push(line); // 如果行格式不符合 "职位：人名"，则保留原行
+                }
             }
+
+            translationResultDiv.textContent = translatedLines.join('\n'); // 将翻译后的行用换行符连接并显示
         });
     </script>
 </body>
